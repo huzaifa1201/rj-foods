@@ -21,8 +21,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const NavLink = ({ to, icon: Icon, label, onClick }: any) => {
     const isActive = location.pathname === to;
     return (
-      <Link 
-        to={to} 
+      <Link
+        to={to}
         onClick={onClick}
         className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${isActive ? 'bg-primaryLight text-primary font-semibold' : 'text-gray-600 hover:text-primary'}`}
       >
@@ -47,10 +47,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           <div className="hidden md:flex items-center gap-6">
             <NavLink to="/" icon={UtensilsCrossed} label="Menu" />
             {currentUser && (
-               <NavLink to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
+              <NavLink to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
             )}
             {isAdmin && (
-              <NavLink to="/admin" icon={User} label="Admin" />
+              <NavLink to="/admin/dashboard" icon={User} label="Admin" />
             )}
           </div>
 
@@ -58,7 +58,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <Link to="/cart" className="relative p-2 text-gray-600 hover:text-primary transition-colors">
               <ShoppingBag size={24} />
               {cartCount > 0 && (
-                <span 
+                <span
                   className="absolute -top-1 -right-1 bg-primary text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full"
                 >
                   {cartCount}
@@ -86,20 +86,20 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="md:hidden bg-white border-b border-gray-100 overflow-hidden"
         >
           <div className="p-4 flex flex-col gap-4">
-             <NavLink to="/" icon={UtensilsCrossed} label="Menu" onClick={() => setIsMobileMenuOpen(false)} />
-             {currentUser && <NavLink to="/dashboard" icon={LayoutDashboard} label="Dashboard" onClick={() => setIsMobileMenuOpen(false)} />}
-             {isAdmin && <NavLink to="/admin" icon={User} label="Admin" onClick={() => setIsMobileMenuOpen(false)} />}
-             {currentUser ? (
-               <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-red-500">
-                 <LogOut size={18} /> Logout
-               </button>
-             ) : (
-               <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="bg-primary text-white px-4 py-2 rounded-lg text-center">Login</Link>
-             )}
+            <NavLink to="/" icon={UtensilsCrossed} label="Menu" onClick={() => setIsMobileMenuOpen(false)} />
+            {currentUser && <NavLink to="/dashboard" icon={LayoutDashboard} label="Dashboard" onClick={() => setIsMobileMenuOpen(false)} />}
+            {isAdmin && <NavLink to="/admin/dashboard" icon={User} label="Admin" onClick={() => setIsMobileMenuOpen(false)} />}
+            {currentUser ? (
+              <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-red-500">
+                <LogOut size={18} /> Logout
+              </button>
+            ) : (
+              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="bg-primary text-white px-4 py-2 rounded-lg text-center">Login</Link>
+            )}
           </div>
         </div>
       )}

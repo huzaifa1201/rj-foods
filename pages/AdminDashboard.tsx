@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, serverTimestamp, query, orderBy, where, onSnapshot, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
+import { updateEmail, updatePassword } from 'firebase/auth';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { Product, Order, PaymentMethod, UserProfile, PageContent } from '../types';
@@ -29,7 +30,7 @@ export const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState('All');
 
   // Confirmation Modal State
-  const [modalConfig, setModalConfig] = useState<{isOpen: boolean, title: string, content: React.ReactNode, onConfirm: () => void} | null>(null);
+  const [modalConfig, setModalConfig] = useState<{ isOpen: boolean, title: string, content: React.ReactNode, onConfirm: () => void } | null>(null);
 
   // Form States (Product)
   const [prodForm, setProdForm] = useState({ name: '', price: '', description: '', imageUrl: '', category: '' });
@@ -41,6 +42,8 @@ export const AdminDashboard = () => {
   // Form States (Profile)
   const [adminName, setAdminName] = useState('');
   const [adminPhone, setAdminPhone] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
 
   // Form States (Content)
   const [editingPage, setEditingPage] = useState<PageContent | null>(null);
@@ -93,23 +96,24 @@ export const AdminDashboard = () => {
     if (userProfile) {
       setAdminName(userProfile.name);
       setAdminPhone(userProfile.phone);
+      setAdminEmail(userProfile.email);
     }
   }, [userProfile]);
 
   const filteredOrders = orders.filter(order => {
     const searchLower = searchQuery.toLowerCase();
-    const matchesSearch = 
-      order.id.toLowerCase().includes(searchLower) || 
+    const matchesSearch =
+      order.id.toLowerCase().includes(searchLower) ||
       order.customerName.toLowerCase().includes(searchLower) ||
       order.customerPhone.includes(searchLower);
-    
+
     const matchesStatus = statusFilter === 'All' || order.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
   const closeModal = () => setModalConfig(null);
-  
+
   const showConfirm = (title: string, message: string, onConfirm: () => void) => {
     setModalConfig({
       isOpen: true,
@@ -127,7 +131,7 @@ export const AdminDashboard = () => {
     showConfirm("Seed Database", "This will add dummy products to your database. Continue?", async () => {
       setLoading(true);
       try {
-        const batchPromises = dummyProducts.map(p => 
+        const batchPromises = dummyProducts.map(p =>
           addDoc(collection(db, 'products'), {
             ...p,
             createdAt: serverTimestamp()
@@ -147,7 +151,7 @@ export const AdminDashboard = () => {
     showConfirm("Reset Content Pages", "This will create/reset Terms, Privacy, etc. pages. Continue?", async () => {
       setLoading(true);
       try {
-        const batchPromises = defaultPages.map(p => 
+        const batchPromises = defaultPages.map(p =>
           setDoc(doc(db, 'content_pages', p.id), {
             title: p.title,
             content: p.content,
@@ -193,7 +197,7 @@ export const AdminDashboard = () => {
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prodForm.name || !prodForm.price) return;
-    
+
     try {
       const payload = {
         ...prodForm,
@@ -227,12 +231,12 @@ export const AdminDashboard = () => {
   };
 
   const handleEditProduct = (p: Product) => {
-    setProdForm({ 
-      name: p.name, 
-      price: p.price.toString(), 
-      description: p.description, 
-      imageUrl: p.imageUrl, 
-      category: p.category 
+    setProdForm({
+      name: p.name,
+      price: p.price.toString(),
+      description: p.description,
+      imageUrl: p.imageUrl,
+      category: p.category
     });
     setEditingProdId(p.id);
     setActiveTab('products');
@@ -290,15 +294,38 @@ export const AdminDashboard = () => {
   // --- Profile Logic ---
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userProfile) return;
+    if (!userProfile || !auth.currentUser) return;
+
+    setLoading(true);
     try {
+      // 1. Update Auth Email if changed
+      if (adminEmail !== userProfile.email) {
+        await updateEmail(auth.currentUser, adminEmail);
+      }
+
+      // 2. Update Auth Password if provided
+      if (adminPassword) {
+        await updatePassword(auth.currentUser, adminPassword);
+      }
+
+      // 3. Update Firestore Profile
       await updateDoc(doc(db, 'users', userProfile.uid), {
         name: adminName,
-        phone: adminPhone
+        phone: adminPhone,
+        email: adminEmail // Keep Firestore in sync
       });
-      showToast('Admin profile updated!', 'success');
-    } catch(e) {
-      showToast('Error updating profile', 'error');
+
+      setAdminPassword(''); // Clear password field
+      showToast('Admin profile & credentials updated!', 'success');
+    } catch (e: any) {
+      console.error(e);
+      if (e.code === 'auth/requires-recent-login') {
+        showToast('Please logout and login again to update credentials.', 'error');
+      } else {
+        showToast(`Error: ${e.message}`, 'error');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -355,46 +382,46 @@ export const AdminDashboard = () => {
       {activeTab === 'orders' && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-             <Card className="text-center py-4">
-               <div className="text-3xl font-bold text-primary">{orders.length}</div>
-               <div className="text-sm text-gray-500">Total Orders</div>
-             </Card>
-             <Card className="text-center py-4">
-               <div className="text-3xl font-bold text-yellow-500">{orders.filter(o => o.status === 'Pending').length}</div>
-               <div className="text-sm text-gray-500">Pending</div>
-             </Card>
-             <Card className="text-center py-4">
-               <div className="text-3xl font-bold text-green-500">{orders.reduce((sum, o) => sum + o.total, 0).toLocaleString()}</div>
-               <div className="text-sm text-gray-500">Total Revenue (PKR)</div>
-             </Card>
+            <Card className="text-center py-4">
+              <div className="text-3xl font-bold text-primary">{orders.length}</div>
+              <div className="text-sm text-gray-500">Total Orders</div>
+            </Card>
+            <Card className="text-center py-4">
+              <div className="text-3xl font-bold text-yellow-500">{orders.filter(o => o.status === 'Pending').length}</div>
+              <div className="text-sm text-gray-500">Pending</div>
+            </Card>
+            <Card className="text-center py-4">
+              <div className="text-3xl font-bold text-green-500">{orders.reduce((sum, o) => sum + o.total, 0).toLocaleString()}</div>
+              <div className="text-sm text-gray-500">Total Revenue (PKR)</div>
+            </Card>
           </div>
 
           <div className="flex flex-col md:flex-row gap-4 mb-6">
-             <div className="relative flex-grow">
-               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-               <input 
-                 type="text" 
-                 placeholder="Search by ID, Name or Phone..." 
-                 className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all bg-white"
-                 value={searchQuery}
-                 onChange={(e) => setSearchQuery(e.target.value)}
-               />
-             </div>
-             <div className="relative min-w-[200px]">
-               <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-               <select 
-                 className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-primary bg-white appearance-none cursor-pointer"
-                 value={statusFilter}
-                 onChange={(e) => setStatusFilter(e.target.value)}
-               >
-                 <option value="All">All Statuses</option>
-                 <option value="Pending">Pending</option>
-                 <option value="Preparing">Preparing</option>
-                 <option value="Out for Delivery">Out for Delivery</option>
-                 <option value="Delivered">Delivered</option>
-                 <option value="Cancelled">Cancelled</option>
-               </select>
-             </div>
+            <div className="relative flex-grow">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="Search by ID, Name or Phone..."
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all bg-white"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="relative min-w-[200px]">
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+              <select
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-primary bg-white appearance-none cursor-pointer"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="All">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Preparing">Preparing</option>
+                <option value="Out for Delivery">Out for Delivery</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
           </div>
 
           {filteredOrders.length === 0 ? (
@@ -407,14 +434,14 @@ export const AdminDashboard = () => {
                 <div className="flex flex-col lg:flex-row justify-between gap-4">
                   <div className="flex-grow">
                     <div className="flex justify-between items-start">
-                       <h3 className="font-bold text-lg">Order #{order.id.slice(0,6)}</h3>
-                       <span className={`px-2 py-1 rounded text-xs font-bold text-white ${order.status === 'Delivered' ? 'bg-green-500' : order.status === 'Pending' ? 'bg-yellow-500' : 'bg-blue-500'}`}>
-                         {order.status}
-                       </span>
+                      <h3 className="font-bold text-lg">Order #{order.id.slice(0, 6)}</h3>
+                      <span className={`px-2 py-1 rounded text-xs font-bold text-white ${order.status === 'Delivered' ? 'bg-green-500' : order.status === 'Pending' ? 'bg-yellow-500' : 'bg-blue-500'}`}>
+                        {order.status}
+                      </span>
                     </div>
                     <p className="text-sm text-gray-500 mb-1"><span className="font-bold">Customer:</span> {order.customerName} | {order.customerPhone}</p>
                     <p className="text-sm text-gray-500 mb-2"><span className="font-bold">Address:</span> {order.customerAddress}</p>
-                    
+
                     <div className="bg-gray-50 p-2 rounded-lg text-sm mb-2">
                       {order.items.map((item, i) => (
                         <div key={i}>{item.quantity}x {item.name}</div>
@@ -423,11 +450,11 @@ export const AdminDashboard = () => {
 
                     {order.paymentMethod !== 'COD' && (
                       <div className="text-xs bg-primaryLight text-primary p-2 rounded mb-2">
-                         <strong>Online Payment:</strong> {order.paymentMethod} <br/>
-                         <strong>TxID:</strong> {order.transactionId} <br/>
-                         {order.screenshotUrl && (
-                           <a href={order.screenshotUrl} target="_blank" rel="noreferrer" className="underline font-bold">View Screenshot</a>
-                         )}
+                        <strong>Online Payment:</strong> {order.paymentMethod} <br />
+                        <strong>TxID:</strong> {order.transactionId} <br />
+                        {order.screenshotUrl && (
+                          <a href={order.screenshotUrl} target="_blank" rel="noreferrer" className="underline font-bold">View Screenshot</a>
+                        )}
                       </div>
                     )}
                     <p className="font-bold text-primary">Total: PKR {order.total}</p>
@@ -437,7 +464,7 @@ export const AdminDashboard = () => {
                   <div className="flex flex-col gap-2 min-w-[150px]">
                     <p className="text-xs font-bold text-gray-400 uppercase">Change Status</p>
                     {['Pending', 'Preparing', 'Out for Delivery', 'Delivered', 'Cancelled'].map((status) => (
-                      <button 
+                      <button
                         key={status}
                         disabled={order.status === status}
                         onClick={() => handleOrderStatus(order.id, status as any)}
@@ -457,10 +484,10 @@ export const AdminDashboard = () => {
       {activeTab === 'products' && (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-             <h3 className="font-bold text-xl">Product Management</h3>
-             <Button onClick={handleSeedProducts} variant="outline" className="text-xs py-2" isLoading={loading}>
-               <Database size={16} /> Seed Dummy Products
-             </Button>
+            <h3 className="font-bold text-xl">Product Management</h3>
+            <Button onClick={handleSeedProducts} variant="outline" className="text-xs py-2" isLoading={loading}>
+              <Database size={16} /> Seed Dummy Products
+            </Button>
           </div>
 
           <Card>
@@ -468,19 +495,19 @@ export const AdminDashboard = () => {
             <div className="flex flex-col md:flex-row gap-6">
               {/* Image Preview for Admin */}
               <div className="w-full md:w-1/3">
-                 <div className="aspect-square bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
-                    <ImageWithFallback src={prodForm.imageUrl} alt="Preview" className="w-full h-full object-cover" />
-                 </div>
-                 <p className="text-xs text-center text-gray-400 mt-2">Image Preview</p>
+                <div className="aspect-square bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
+                  <ImageWithFallback src={prodForm.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                </div>
+                <p className="text-xs text-center text-gray-400 mt-2">Image Preview</p>
               </div>
 
               <form onSubmit={handleSaveProduct} className="w-full md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4 h-fit">
-                <Input placeholder="Product Name" value={prodForm.name} onChange={e => setProdForm({...prodForm, name: e.target.value})} required />
-                <Input placeholder="Price (PKR)" type="number" value={prodForm.price} onChange={e => setProdForm({...prodForm, price: e.target.value})} required />
-                <Input placeholder="Category" value={prodForm.category} onChange={e => setProdForm({...prodForm, category: e.target.value})} />
-                <Input placeholder="Image URL (http://...)" value={prodForm.imageUrl} onChange={e => setProdForm({...prodForm, imageUrl: e.target.value})} required />
+                <Input placeholder="Product Name" value={prodForm.name} onChange={e => setProdForm({ ...prodForm, name: e.target.value })} required />
+                <Input placeholder="Price (PKR)" type="number" value={prodForm.price} onChange={e => setProdForm({ ...prodForm, price: e.target.value })} required />
+                <Input placeholder="Category" value={prodForm.category} onChange={e => setProdForm({ ...prodForm, category: e.target.value })} />
+                <Input placeholder="Image URL (http://...)" value={prodForm.imageUrl} onChange={e => setProdForm({ ...prodForm, imageUrl: e.target.value })} required />
                 <div className="md:col-span-2">
-                  <Input placeholder="Description" value={prodForm.description} onChange={e => setProdForm({...prodForm, description: e.target.value})} />
+                  <Input placeholder="Description" value={prodForm.description} onChange={e => setProdForm({ ...prodForm, description: e.target.value })} />
                 </div>
                 <Button type="submit" className="md:col-span-2">{editingProdId ? 'Update Product' : 'Add Product'}</Button>
                 {editingProdId && <Button type="button" variant="secondary" onClick={() => { setEditingProdId(null); setProdForm({ name: '', price: '', description: '', imageUrl: '', category: '' }); }} className="md:col-span-2">Cancel Edit</Button>}
@@ -525,8 +552,8 @@ export const AdminDashboard = () => {
             {/* Pages List */}
             <div className="col-span-1 space-y-3">
               {pages.map(page => (
-                <div 
-                  key={page.id} 
+                <div
+                  key={page.id}
                   onClick={() => handleEditPage(page)}
                   className={`p-4 rounded-xl border cursor-pointer transition-all ${editingPage?.id === page.id ? 'border-primary bg-primaryLight' : 'border-gray-200 bg-white hover:border-primary/50'}`}
                 >
@@ -546,16 +573,16 @@ export const AdminDashboard = () => {
                       <h3 className="font-bold">Editing: {editingPage.title}</h3>
                       <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500">Slug: {editingPage.id}</span>
                     </div>
-                    
-                    <Input 
+
+                    <Input
                       label="Page Title"
-                      value={pageTitle} 
-                      onChange={(e) => setPageTitle(e.target.value)} 
+                      value={pageTitle}
+                      onChange={(e) => setPageTitle(e.target.value)}
                     />
-                    
+
                     <div>
                       <label className="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Content</label>
-                      <textarea 
+                      <textarea
                         className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white/80 backdrop-blur-sm h-64"
                         value={pageContent}
                         onChange={(e) => setPageContent(e.target.value)}
@@ -585,12 +612,12 @@ export const AdminDashboard = () => {
       {activeTab === 'payments' && (
         <div className="space-y-6">
           <Card>
-             <h3 className="font-bold mb-4">Add Payment Method</h3>
-             <form onSubmit={handleAddPayment} className="flex flex-col md:flex-row gap-4">
-               <Input placeholder="Method Name (e.g., JazzCash)" value={payForm.name} onChange={e => setPayForm({...payForm, name: e.target.value})} required />
-               <Input placeholder="Account Number / Info" value={payForm.number} onChange={e => setPayForm({...payForm, number: e.target.value})} required />
-               <Button type="submit">Add</Button>
-             </form>
+            <h3 className="font-bold mb-4">Add Payment Method</h3>
+            <form onSubmit={handleAddPayment} className="flex flex-col md:flex-row gap-4">
+              <Input placeholder="Method Name (e.g., JazzCash)" value={payForm.name} onChange={e => setPayForm({ ...payForm, name: e.target.value })} required />
+              <Input placeholder="Account Number / Info" value={payForm.number} onChange={e => setPayForm({ ...payForm, number: e.target.value })} required />
+              <Button type="submit">Add</Button>
+            </form>
           </Card>
           <div className="space-y-2">
             {payments.map(p => (
@@ -645,41 +672,41 @@ export const AdminDashboard = () => {
 
       {activeTab === 'reports' && (
         <div className="space-y-6">
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             <Card>
-               <h3 className="font-bold text-xl mb-6">Sales Overview</h3>
-               <div className="space-y-4">
-                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <span className="text-gray-600">Total Orders</span>
-                    <span className="font-bold text-xl">{orders.length}</span>
-                 </div>
-                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <span className="text-gray-600">Total Revenue</span>
-                    <span className="font-bold text-xl text-primary">PKR {orders.reduce((acc, curr) => acc + curr.total, 0).toLocaleString()}</span>
-                 </div>
-                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <span className="text-gray-600">Avg. Order Value</span>
-                    <span className="font-bold text-xl">PKR {orders.length > 0 ? Math.round(orders.reduce((acc, curr) => acc + curr.total, 0) / orders.length) : 0}</span>
-                 </div>
-               </div>
-             </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <h3 className="font-bold text-xl mb-6">Sales Overview</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-gray-600">Total Orders</span>
+                  <span className="font-bold text-xl">{orders.length}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-gray-600">Total Revenue</span>
+                  <span className="font-bold text-xl text-primary">PKR {orders.reduce((acc, curr) => acc + curr.total, 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-gray-600">Avg. Order Value</span>
+                  <span className="font-bold text-xl">PKR {orders.length > 0 ? Math.round(orders.reduce((acc, curr) => acc + curr.total, 0) / orders.length) : 0}</span>
+                </div>
+              </div>
+            </Card>
 
-             <Card>
-               <h3 className="font-bold text-xl mb-6">Top Selling Products</h3>
-               <div className="space-y-3">
-                 {getTopProducts().map(([name, count], index) => (
-                   <div key={index} className="flex justify-between items-center border-b border-gray-100 pb-2 last:border-0">
-                     <div className="flex items-center gap-3">
-                       <span className="w-6 h-6 bg-primaryLight text-primary rounded-full flex items-center justify-center text-xs font-bold">{index + 1}</span>
-                       <span className="font-medium">{name}</span>
-                     </div>
-                     <span className="text-sm font-bold text-gray-500">{count} sold</span>
-                   </div>
-                 ))}
-                 {getTopProducts().length === 0 && <p className="text-gray-500">No sales data yet.</p>}
-               </div>
-             </Card>
-           </div>
+            <Card>
+              <h3 className="font-bold text-xl mb-6">Top Selling Products</h3>
+              <div className="space-y-3">
+                {getTopProducts().map(([name, count], index) => (
+                  <div key={index} className="flex justify-between items-center border-b border-gray-100 pb-2 last:border-0">
+                    <div className="flex items-center gap-3">
+                      <span className="w-6 h-6 bg-primaryLight text-primary rounded-full flex items-center justify-center text-xs font-bold">{index + 1}</span>
+                      <span className="font-medium">{name}</span>
+                    </div>
+                    <span className="text-sm font-bold text-gray-500">{count} sold</span>
+                  </div>
+                ))}
+                {getTopProducts().length === 0 && <p className="text-gray-500">No sales data yet.</p>}
+              </div>
+            </Card>
+          </div>
         </div>
       )}
 
@@ -687,33 +714,41 @@ export const AdminDashboard = () => {
         <div className="max-w-2xl mx-auto">
           <Card>
             <div className="flex items-center gap-4 mb-8">
-               <div className="w-20 h-20 bg-darkGray text-white rounded-full flex items-center justify-center">
-                 <User size={40} />
-               </div>
-               <div>
-                 <h2 className="text-2xl font-bold">{userProfile?.name}</h2>
-                 <Badge color="bg-darkGray">Administrator</Badge>
-               </div>
+              <div className="w-20 h-20 bg-darkGray text-white rounded-full flex items-center justify-center">
+                <User size={40} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">{userProfile?.name}</h2>
+                <Badge color="bg-darkGray">Administrator</Badge>
+              </div>
             </div>
 
             <form onSubmit={handleUpdateProfile} className="space-y-4">
-              <Input 
-                label="Full Name" 
-                value={adminName} 
-                onChange={e => setAdminName(e.target.value)} 
+              <Input
+                label="Full Name"
+                value={adminName}
+                onChange={e => setAdminName(e.target.value)}
               />
-              <Input 
-                label="Phone Number" 
-                value={adminPhone} 
-                onChange={e => setAdminPhone(e.target.value)} 
+              <Input
+                label="Phone Number"
+                value={adminPhone}
+                onChange={e => setAdminPhone(e.target.value)}
               />
-              <Input 
-                label="Email" 
-                value={userProfile?.email} 
-                disabled 
-                className="opacity-50 cursor-not-allowed"
+              <Input
+                label="Email (Login Username)"
+                value={adminEmail}
+                onChange={e => setAdminEmail(e.target.value)}
+                type="email"
+                required
               />
-              <Button type="submit" className="w-full bg-darkGray hover:bg-black">
+              <Input
+                label="New Password"
+                placeholder="Leave empty to keep current password"
+                value={adminPassword}
+                onChange={e => setAdminPassword(e.target.value)}
+                type="password"
+              />
+              <Button type="submit" className="w-full bg-darkGray hover:bg-black" isLoading={loading}>
                 Update Profile
               </Button>
             </form>
@@ -722,9 +757,9 @@ export const AdminDashboard = () => {
       )}
 
       {modalConfig && (
-        <Modal 
-          isOpen={modalConfig.isOpen} 
-          title={modalConfig.title} 
+        <Modal
+          isOpen={modalConfig.isOpen}
+          title={modalConfig.title}
           onClose={closeModal}
         >
           <div className="mb-6">

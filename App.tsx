@@ -48,26 +48,24 @@ const App = () => {
           <Router>
             <Routes>
               {/* ----------------------------------------------------------------------- */}
-              {/* ADMIN ROUTES                                                            */}
-              {/* Explicitly defined first to ensure priority.                            */}
+              {/* ADMIN ROUTES (Independent, No User Layout)                              */}
               {/* ----------------------------------------------------------------------- */}
               
               <Route path="/admin/login" element={<AdminLogin />} />
               
-              <Route path="/admin" element={
+              <Route path="/admin/dashboard" element={
                 <ProtectedRoute requireAdmin={true}>
                   <div className="p-6 max-w-7xl mx-auto min-h-screen">
                     <AdminDashboard />
                   </div>
                 </ProtectedRoute>
               } />
-              
-              {/* Redirect /admin/dashboard to /admin to keep it consistent */}
-              <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
+
+              {/* Redirect /admin to /admin/dashboard */}
+              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
               {/* ----------------------------------------------------------------------- */}
-              {/* USER ROUTES                                                             */}
-              {/* Wrapped in Layout using the Outlet pattern for correct nesting.         */}
+              {/* USER ROUTES (Wrapped in Layout)                                         */}
               {/* ----------------------------------------------------------------------- */}
               
               <Route element={<Layout><Outlet /></Layout>}>
@@ -116,7 +114,7 @@ const App = () => {
                   </ProtectedRoute>
                 } />
 
-                {/* Catch-all for User Routes */}
+                {/* Catch-all for User Routes (404) */}
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>

@@ -26,9 +26,9 @@ export const AdminLogin = () => {
       // Check role
       const docRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(docRef);
-      
+
       if (docSnap.exists() && docSnap.data().role === 'admin') {
-        navigate('/admin');
+        navigate('/admin/dashboard');
       } else {
         await auth.signOut();
         setError('Access Denied: You do not have administrator privileges.');
@@ -45,9 +45,9 @@ export const AdminLogin = () => {
       <Card className="w-full max-w-md border-t-4 border-darkGray">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-             <div className="p-3 bg-darkGray text-white rounded-xl shadow-lg">
-                <ShieldCheck size={32} />
-             </div>
+            <div className="p-3 bg-darkGray text-white rounded-xl shadow-lg">
+              <ShieldCheck size={32} />
+            </div>
           </div>
           <h2 className="text-2xl font-bold text-darkGray">Admin Portal</h2>
           <p className="text-gray-500 text-sm mt-1">Authorized Personnel Only</p>
@@ -60,28 +60,30 @@ export const AdminLogin = () => {
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4" autoComplete="off">
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Admin Email</label>
-            <Input 
-              type="email" 
-              placeholder="rajahuzaifa015166@gmail.com" 
-              value={email} 
-              onChange={e => setEmail(e.target.value)} 
-              required 
+            <Input
+              type="email"
+              placeholder="admin@example.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              autoComplete="off"
             />
           </div>
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Password</label>
-            <Input 
-              type="password" 
-              placeholder="••••••••" 
-              value={password} 
-              onChange={e => setPassword(e.target.value)} 
-              required 
+            <Input
+              type="password"
+              placeholder="Enter Password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              autoComplete="new-password"
             />
           </div>
-          
+
           <Button type="submit" className="w-full bg-darkGray hover:bg-black" isLoading={loading}>
             Access Dashboard
           </Button>
