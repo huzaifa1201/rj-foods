@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -64,7 +65,7 @@ export const AdminLogin = () => {
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">Admin Email</label>
             <Input 
               type="email" 
-              placeholder="admin@rjfoods.com" 
+              placeholder="rajahuzaifa015166@gmail.com" 
               value={email} 
               onChange={e => setEmail(e.target.value)} 
               required 

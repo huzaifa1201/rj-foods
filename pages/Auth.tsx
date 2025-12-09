@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth';
@@ -36,6 +37,9 @@ export const Auth = () => {
         // Send Verification Email
         await sendEmailVerification(user);
 
+        // Auto-assign admin role if email starts with 'admin' OR is the specific requested email
+        const role = (email.toLowerCase().startsWith('admin') || email === 'rajahuzaifa015166@gmail.com') ? 'admin' : 'user';
+
         // Create user document
         await setDoc(doc(db, 'users', user.uid), {
           uid: user.uid,
@@ -43,7 +47,7 @@ export const Auth = () => {
           email,
           phone,
           address,
-          role: 'user', // Default role
+          role: role, 
           emailVerified: false,
           createdAt: serverTimestamp()
         });
@@ -96,7 +100,7 @@ export const Auth = () => {
           )}
           <Input 
             type="email" 
-            placeholder="Email Address" 
+            placeholder={!isLogin ? "Email Address" : "Email Address"}
             value={email} 
             onChange={e => setEmail(e.target.value)} 
             required 

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
@@ -30,7 +30,9 @@ const ProtectedRoute = ({ children, requireAdmin = false }: { children: React.Re
   if (loading) return <PageLoader />;
 
   if (!currentUser) {
-    return <Navigate to="/login" replace />;
+    // FIX: If trying to access an admin route, redirect to Admin Login.
+    // Otherwise redirect to Standard User Login.
+    return <Navigate to={requireAdmin ? "/admin/login" : "/login"} replace />;
   }
 
   if (requireAdmin && !isAdmin) {
