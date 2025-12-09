@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { Order } from '../types';
@@ -17,15 +17,23 @@ export const UserDashboard = () => {
   useEffect(() => {
     if (!currentUser) return;
 
+    // Query without orderBy to avoid "Index Required" error
     const q = query(
       collection(db, 'orders'),
-      where('userId', '==', currentUser.uid),
-      orderBy('createdAt', 'desc')
+      where('userId', '==', currentUser.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const ords: Order[] = [];
       snapshot.forEach(doc => ords.push({ id: doc.id, ...doc.data() } as Order));
+      
+      // Sort orders client-side (Newest first)
+      ords.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+      });
+
       setOrders(ords);
       setLoading(false);
     }, (error) => {
