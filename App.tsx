@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
@@ -48,80 +48,77 @@ const App = () => {
           <Router>
             <Routes>
               {/* ----------------------------------------------------------------------- */}
-              {/* ADMIN ROUTES (No Layout, No User Navbar)                                */}
-              {/* These are matched first.                                                */}
+              {/* ADMIN ROUTES                                                            */}
+              {/* Explicitly defined first to ensure priority.                            */}
               {/* ----------------------------------------------------------------------- */}
               
               <Route path="/admin/login" element={<AdminLogin />} />
               
               <Route path="/admin" element={
                 <ProtectedRoute requireAdmin={true}>
-                  {/* Container added to replace Layout's padding */}
                   <div className="p-6 max-w-7xl mx-auto min-h-screen">
                     <AdminDashboard />
                   </div>
                 </ProtectedRoute>
               } />
+              
+              {/* Redirect /admin/dashboard to /admin to keep it consistent */}
+              <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
 
               {/* ----------------------------------------------------------------------- */}
-              {/* USER ROUTES (Wrapped in Layout)                                         */}
-              {/* The "/*" wildcard catches everything else and applies the User Layout.  */}
+              {/* USER ROUTES                                                             */}
+              {/* Wrapped in Layout using the Outlet pattern for correct nesting.         */}
               {/* ----------------------------------------------------------------------- */}
               
-              <Route path="/*" element={
-                <Layout>
-                  <Routes>
-                    <Route path="/" element={<Landing />} />
-                    <Route path="/login" element={<Auth />} />
-                    <Route path="/email-verification" element={<EmailVerification />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/product/:id" element={<ProductDetails />} />
-                    <Route path="/cart" element={<Cart />} />
-                    
-                    {/* Dynamic Content Pages */}
-                    <Route path="/pages/:slug" element={<DynamicPage />} />
+              <Route element={<Layout><Outlet /></Layout>}>
+                <Route path="/" element={<Landing />} />
+                <Route path="/login" element={<Auth />} />
+                <Route path="/email-verification" element={<EmailVerification />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/product/:id" element={<ProductDetails />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/pages/:slug" element={<DynamicPage />} />
 
-                    <Route path="/dashboard" element={
-                      <ProtectedRoute>
-                        <UserDashboard />
-                      </ProtectedRoute>
-                    } />
+                {/* Protected User Routes */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <UserDashboard />
+                  </ProtectedRoute>
+                } />
 
-                    <Route path="/profile" element={
-                      <ProtectedRoute>
-                        <UserProfile />
-                      </ProtectedRoute>
-                    } />
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <UserProfile />
+                  </ProtectedRoute>
+                } />
 
-                    <Route path="/profile/edit" element={
-                      <ProtectedRoute>
-                        <EditProfile />
-                      </ProtectedRoute>
-                    } />
+                <Route path="/profile/edit" element={
+                  <ProtectedRoute>
+                    <EditProfile />
+                  </ProtectedRoute>
+                } />
 
-                    <Route path="/order/:id" element={
-                      <ProtectedRoute>
-                        <OrderDetails />
-                      </ProtectedRoute>
-                    } />
+                <Route path="/order/:id" element={
+                  <ProtectedRoute>
+                    <OrderDetails />
+                  </ProtectedRoute>
+                } />
 
-                    <Route path="/checkout" element={
-                      <ProtectedRoute>
-                        <Checkout />
-                      </ProtectedRoute>
-                    } />
+                <Route path="/checkout" element={
+                  <ProtectedRoute>
+                    <Checkout />
+                  </ProtectedRoute>
+                } />
 
-                    <Route path="/order-success" element={
-                      <ProtectedRoute>
-                        <OrderSuccess />
-                      </ProtectedRoute>
-                    } />
+                <Route path="/order-success" element={
+                  <ProtectedRoute>
+                    <OrderSuccess />
+                  </ProtectedRoute>
+                } />
 
-                    {/* 404 Page inside Layout */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Layout>
-              } />
+                {/* Catch-all for User Routes */}
+                <Route path="*" element={<NotFound />} />
+              </Route>
             </Routes>
           </Router>
         </CartProvider>
