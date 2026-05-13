@@ -35,7 +35,7 @@ export const Home = () => {
   }, []);
 
   return (
-    <div className="space-y-40 pb-40 overflow-hidden">
+    <div className="space-y-40 pb-40 overflow-hidden bg-white">
       {/* --- HERO SECTION --- */}
       <section className="relative min-h-[90vh] flex items-center pt-20">
          <div className="absolute top-0 right-0 w-1/2 h-full bg-primaryLight/30 rounded-bl-[20rem] -z-10 blur-3xl opacity-50"></div>
@@ -74,20 +74,6 @@ export const Home = () => {
                      <span className="font-black text-darkGray text-lg border-b-2 border-primary/20 pb-1 group-hover:border-primary transition-all">How it works?</span>
                   </button>
                </div>
-
-               <div className="mt-16 flex items-center gap-8">
-                  <div className="flex -space-x-4">
-                     {[1,2,3,4].map(i => (
-                        <div key={i} className="w-14 h-14 rounded-full border-4 border-white overflow-hidden shadow-lg">
-                           <img src={`https://i.pravatar.cc/150?u=${i}`} alt="" />
-                        </div>
-                     ))}
-                  </div>
-                  <div>
-                     <p className="text-2xl font-black text-darkGray">50k+</p>
-                     <p className="text-sm text-gray-400 font-bold uppercase tracking-widest">Happy Foodies</p>
-                  </div>
-               </div>
             </motion.div>
 
             <motion.div 
@@ -102,29 +88,50 @@ export const Home = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent"></div>
                </div>
-               
-               <motion.div 
-                  initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1 }}
-                  className="absolute -top-10 -left-10 bg-white p-6 rounded-[2rem] shadow-2xl flex items-center gap-4 z-20"
-               >
-                  <div className="w-12 h-12 bg-green-500 text-white rounded-xl flex items-center justify-center"><Zap size={24} /></div>
-                  <div>
-                     <p className="font-black text-darkGray">30 Mins</p>
-                     <p className="text-[10px] text-gray-400 font-bold uppercase">Fast Delivery</p>
-                  </div>
-               </motion.div>
-
-               <motion.div 
-                  initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.2 }}
-                  className="absolute -bottom-10 -right-10 bg-white p-8 rounded-[3rem] shadow-2xl z-20 text-center"
-               >
-                  <div className="flex justify-center gap-1 mb-2">
-                     {[1,2,3,4,5].map(i => <Star key={i} size={14} className="fill-orange-400 text-orange-400" />)}
-                  </div>
-                  <p className="font-black text-2xl text-darkGray">4.9/5</p>
-                  <p className="text-xs text-gray-400 font-bold uppercase">Customer Rating</p>
-               </motion.div>
             </motion.div>
+         </div>
+      </section>
+
+      {/* --- HOW IT WORKS (REVERTED TO LIGHT BUT FIXED VISIBILITY) --- */}
+      <section className="max-w-7xl mx-auto px-4 relative">
+         <div className="text-center mb-24">
+            <span className="text-primary font-black uppercase tracking-[0.3em] text-[10px] bg-primaryLight px-4 py-1.5 rounded-full inline-block">
+               Step by Step
+            </span>
+            <h2 className="text-6xl font-black text-darkGray mt-6 tracking-tight">
+               How It <span className="text-primary italic">Works</span>
+            </h2>
+            <div className="w-20 h-2 bg-primary mx-auto mt-6 rounded-full"></div>
+         </div>
+
+         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-24 relative">
+            {/* Connecting Line (Desktop Only) */}
+            <div className="hidden md:block absolute top-1/2 left-1/4 right-1/4 h-0.5 bg-gray-100 -translate-y-1/2 -z-10"></div>
+            
+            <WorkStep 
+               number="01" 
+               title="Choose Your Meal" 
+               desc="Browse through 1000+ dishes from top restaurants in Pakistan." 
+               icon={ShoppingBag}
+               delay={0.1}
+               isLight
+            />
+            <WorkStep 
+               number="02" 
+               title="Place Your Order" 
+               desc="Pay securely via EasyPaisa, JazzCash or Cash on Delivery." 
+               icon={CreditCard}
+               delay={0.2}
+               isLight
+            />
+            <WorkStep 
+               number="03" 
+               title="Enjoy Your Food" 
+               desc="Sit back and relax. Your hot meal will be at your door in 30 mins." 
+               icon={UtensilsIcon}
+               delay={0.3}
+               isLight
+            />
          </div>
       </section>
 
@@ -145,7 +152,7 @@ export const Home = () => {
                   onClick={() => navigate('/menu', { state: { category: cat.name } })}
                   className="group cursor-pointer"
                >
-                  <div className="aspect-square bg-white rounded-[3rem] p-6 shadow-xl shadow-gray-200/50 group-hover:bg-primary group-hover:shadow-primary/20 transition-all duration-500 mb-6 flex items-center justify-center border border-gray-50">
+                  <div className="aspect-square bg-white rounded-[3rem] p-6 shadow-xl shadow-gray-200/50 group-hover:bg-primary group-hover:shadow-primary/20 transition-all duration-500 mb-6 flex items-center justify-center border border-gray-100">
                      <div className="w-full h-full rounded-[2rem] overflow-hidden">
                         <ImageWithFallback src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-700" />
                      </div>
@@ -153,55 +160,6 @@ export const Home = () => {
                   <h3 className="text-center font-black text-darkGray group-hover:text-primary transition-colors text-lg">{cat.name}</h3>
                </motion.div>
             ))}
-         </div>
-      </section>
-
-      {/* --- HOW IT WORKS (RE-FIXED VISUALS) --- */}
-      <section className="relative py-40">
-         {/* Explicit solid background color to fix white-on-white issues */}
-         <div className="absolute inset-0 bg-[#1a1a1a] -z-10">
-            <div className="absolute inset-0 opacity-[0.1] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:40px_40px]"></div>
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-primary/5 to-transparent"></div>
-         </div>
-         
-         <div className="max-w-7xl mx-auto px-6 relative z-10">
-            <div className="text-center mb-32">
-               <motion.span 
-                 initial={{ opacity: 0 }}
-                 whileInView={{ opacity: 1 }}
-                 className="text-primary font-black uppercase tracking-[0.5em] text-[10px] bg-primary/10 px-4 py-1 rounded-full"
-               >
-                 Seamless Experience
-               </motion.span>
-               <h2 className="text-6xl md:text-8xl font-black text-white mt-8 tracking-tighter leading-none">
-                 How It <span className="text-primary italic">Works</span>
-               </h2>
-               <div className="w-32 h-2 bg-primary mx-auto mt-10 rounded-full shadow-[0_0_20px_rgba(255,75,110,0.5)]"></div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-24 relative">
-               <WorkStep 
-                  number="01" 
-                  title="Choose Your Meal" 
-                  desc="Browse through 1000+ dishes from top restaurants in Pakistan." 
-                  icon={ShoppingBag}
-                  delay={0.1}
-               />
-               <WorkStep 
-                  number="02" 
-                  title="Place Your Order" 
-                  desc="Pay securely via EasyPaisa, JazzCash or Cash on Delivery." 
-                  icon={CreditCard}
-                  delay={0.2}
-               />
-               <WorkStep 
-                  number="03" 
-                  title="Enjoy Your Food" 
-                  desc="Sit back and relax. Your hot meal will be at your door in 30 mins." 
-                  icon={UtensilsIcon}
-                  delay={0.3}
-               />
-            </div>
          </div>
       </section>
 
@@ -223,12 +181,11 @@ export const Home = () => {
                      <p className="text-4xl font-black text-primary">500+</p>
                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Partner Restaurants</p>
                   </div>
-                  <div className="h-64 bg-[#1a1a1a] rounded-[3rem] overflow-hidden shadow-2xl">
+                  <div className="h-64 bg-darkGray rounded-[3rem] overflow-hidden shadow-2xl">
                      <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" className="w-full h-full object-cover" alt="" />
                   </div>
                </div>
             </div>
-            <div className="absolute -top-10 -left-10 w-40 h-40 bg-primaryLight rounded-full blur-3xl opacity-50 -z-10"></div>
          </div>
 
          <div>
@@ -240,10 +197,6 @@ export const Home = () => {
                <Point icon={Award} title="Premium Restaurants" desc="We only partner with highly-rated and hygiene-certified kitchens." />
                <Point icon={Users} title="Dedicated Support" desc="Our customer care team is available 24/7 to assist with your orders." />
             </div>
-
-            <Button onClick={() => navigate('/menu')} className="mt-16 px-12 py-5 font-black text-lg rounded-[2rem]">
-               Explore More <ChevronRight className="ml-2" />
-            </Button>
          </div>
       </section>
 
@@ -286,7 +239,6 @@ export const Home = () => {
                            <p className="text-gray-400 text-sm font-medium mb-8 line-clamp-2 leading-relaxed">{p.description}</p>
                            <div className="flex justify-between items-center bg-gray-50 p-2 rounded-[1.5rem]">
                               <span className="text-primary font-black text-xl ml-4">PKR {p.price}</span>
-                              {/* FIXED: Added ShoppingBag icon explicitly inside the button with proper color */}
                               <button 
                                  onClick={() => navigate(`/product/${p.id}`)} 
                                  className="w-14 h-14 bg-primary text-white rounded-2xl shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
@@ -318,12 +270,8 @@ export const Home = () => {
                  whileInView={{ opacity: 1, scale: 1 }}
                  className="text-5xl md:text-7xl font-black text-white mb-10 leading-[1.1] tracking-tighter"
                >
-                 Ready to taste the <br /> <span className="text-[#1a1a1a]">best food</span> in Pakistan?
+                 Ready to taste the <br /> <span className="text-darkGray">best food</span> in Pakistan?
                </motion.h2>
-               
-               <p className="text-white/80 font-bold mb-14 text-lg md:text-xl max-w-xl mx-auto leading-relaxed italic">
-                 "Join 50,000+ happy foodies who enjoy fresh and hot delivery every single day with FoodieFlow."
-               </p>
                
                <div className="flex flex-wrap justify-center gap-6">
                   <Button 
@@ -341,7 +289,7 @@ export const Home = () => {
   );
 };
 
-const WorkStep = ({ number, title, desc, icon: Icon, delay }: any) => (
+const WorkStep = ({ number, title, desc, icon: Icon, delay, isLight }: any) => (
   <motion.div 
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -349,15 +297,15 @@ const WorkStep = ({ number, title, desc, icon: Icon, delay }: any) => (
     className="text-center group relative z-10"
   >
      <div className="relative inline-block mb-10">
-        <div className="w-32 h-32 bg-white/5 border border-white/10 rounded-[3rem] flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-700 group-hover:scale-110 group-hover:shadow-[0_20px_60px_rgba(255,75,110,0.5)]">
-           <Icon size={48} strokeWidth={1.5} />
+        <div className={`w-32 h-32 rounded-[3rem] flex items-center justify-center transition-all duration-700 group-hover:scale-110 ${isLight ? 'bg-white border border-gray-100 shadow-xl group-hover:bg-primary group-hover:text-white' : 'bg-white/5 border border-white/10 text-primary group-hover:bg-primary group-hover:text-white'}`}>
+           <Icon size={48} strokeWidth={1.5} className={isLight ? 'text-primary group-hover:text-white' : ''} />
         </div>
-        <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-2xl border-4 border-[#1a1a1a]">
+        <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-2xl border-4 border-white">
            {number}
         </div>
      </div>
-     <h3 className="text-3xl font-black text-white mb-6 group-hover:text-primary transition-colors tracking-tight">{title}</h3>
-     <p className="text-gray-400 font-bold leading-relaxed max-w-[280px] mx-auto text-sm opacity-80 group-hover:opacity-100 transition-opacity">{desc}</p>
+     <h3 className={`text-3xl font-black mb-6 group-hover:text-primary transition-colors tracking-tight ${isLight ? 'text-darkGray' : 'text-white'}`}>{title}</h3>
+     <p className={`font-bold leading-relaxed max-w-[280px] mx-auto text-sm transition-opacity ${isLight ? 'text-gray-400' : 'text-white/70'}`}>{desc}</p>
   </motion.div>
 );
 
