@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Loader2, X, UtensilsCrossed } from 'lucide-react';
+import { Loader2, X, Utensils } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -122,7 +122,7 @@ export const ImageWithFallback: React.FC<React.ImgHTMLAttributes<HTMLImageElemen
   if (error || !src) {
     return (
       <div className={`bg-gray-100 flex items-center justify-center text-gray-400 ${className}`}>
-        <UtensilsCrossed size={24} className="opacity-50" />
+        <Utensils size={24} className="opacity-50" />
       </div>
     );
   }

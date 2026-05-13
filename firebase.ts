@@ -1,17 +1,20 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB5if_0B54F-kdGFaxL53PKfH5ObKohKns",
-  authDomain: "rj-foods-f6994.firebaseapp.com",
-  projectId: "rj-foods-f6994",
-  storageBucket: "rj-foods-f6994.firebasestorage.app",
-  messagingSenderId: "439927445054",
-  appId: "1:439927445054:web:a69dc6095b3175dd58236f",
-  measurementId: "G-H9Q965MLVS"
+  apiKey: "AIzaSyDsJfm7H4gTFvYFT3zM3OW5XqqXAHSymzY",
+  authDomain: "foodieflow-b0df6.firebaseapp.com",
+  projectId: "foodieflow-b0df6",
+  storageBucket: "foodieflow-b0df6.firebasestorage.app",
+  messagingSenderId: "622699555237",
+  appId: "1:622699555237:web:1ce1f6b7e1d87376d1604c",
+  measurementId: "G-WE828S3SJP"
 };
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
 export const db = getFirestore(app);
+export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;

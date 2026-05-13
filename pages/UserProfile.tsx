@@ -2,10 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Card, Button, PageLoader } from '../components/UI';
-import { User, Mail, Phone, MapPin, Edit2, ArrowLeft } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Edit2, ArrowLeft, LayoutDashboard } from 'lucide-react';
 
 export const UserProfile = () => {
-  const { userProfile, loading } = useAuth();
+  const { userProfile, loading, isAdmin } = useAuth();
 
   if (loading) return <PageLoader />;
 
@@ -31,6 +31,14 @@ export const UserProfile = () => {
           </div>
           <h2 className="text-2xl font-bold text-darkGray">{userProfile?.name}</h2>
           <p className="text-gray-500">Member since {userProfile?.createdAt ? new Date(userProfile.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</p>
+          
+          {isAdmin && (
+            <Link to="/admin/dashboard" className="mt-4">
+              <Button className="flex items-center gap-2 bg-darkGray hover:bg-black">
+                <LayoutDashboard size={18} /> Admin Dashboard
+              </Button>
+            </Link>
+          )}
         </div>
 
         <div className="space-y-6">

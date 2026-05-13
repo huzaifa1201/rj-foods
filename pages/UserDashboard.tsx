@@ -4,12 +4,12 @@ import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { Order } from '../types';
 import { Card, PageLoader, Badge, Button } from '../components/UI';
-import { Package, MapPin, Phone, User as UserIcon, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { Package, MapPin, Phone, User as UserIcon, ArrowRight, ArrowUpRight, LayoutDashboard } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 export const UserDashboard = () => {
-  const { currentUser, userProfile } = useAuth();
+  const { currentUser, userProfile, isAdmin } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -111,6 +111,14 @@ export const UserDashboard = () => {
           <Link to="/profile">
             <Button variant="secondary" className="w-full">View Full Profile</Button>
           </Link>
+
+          {isAdmin && (
+            <Link to="/admin/dashboard" className="block mt-3">
+              <Button className="w-full flex items-center justify-center gap-2 bg-darkGray hover:bg-black text-white">
+                <LayoutDashboard size={18} /> Admin Dashboard
+              </Button>
+            </Link>
+          )}
         </Card>
       </motion.div>
 

@@ -18,7 +18,19 @@ export interface Product {
   price: number;
   category: string;
   imageUrl: string;
+  rating?: number;
+  numReviews?: number;
   createdAt?: any;
+}
+
+export interface Review {
+  id: string;
+  productId: string;
+  userId: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  createdAt: any;
 }
 
 export interface CartItem extends Product {
@@ -30,20 +42,26 @@ export interface PaymentMethod {
   name: string;
   number: string; // Account number or instructions
   status: 'active' | 'inactive';
+  isDigital: boolean; // True for EasyPaisa, JazzCash, Bank Transfer etc.
 }
 
 export interface Order {
   id: string;
   userId: string;
+  customerName: string;
+  customerPhone: string;
+  customerAddress: string;
+  customerCity?: string;
+  customerPostalCode?: string;
+  deliveryNotes?: string;
+  floorApartment?: string;
   items: CartItem[];
   total: number;
-  paymentMethod: string; // 'COD' or PaymentMethod ID/Name
-  transactionId?: string;
-  screenshotUrl?: string;
+  deliveryFee: number;
   status: 'Pending' | 'Preparing' | 'Out for Delivery' | 'Delivered' | 'Cancelled';
-  customerName: string;
-  customerAddress: string;
-  customerPhone: string;
+  paymentMethod: string;
+  transactionId?: string; // For digital payments
+  screenshotUrl?: string; // For digital payments
   createdAt: any;
 }
 
@@ -52,4 +70,19 @@ export interface PageContent {
   title: string;
   content: string;
   updatedAt: any;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  imageUrl: string;
+  createdAt?: any;
+}
+
+export interface AppSettings {
+  deliveryFee: number;
+  minOrderAmount: number;
+  contactEmail: string;
+  contactPhone: string;
+  address: string;
 }

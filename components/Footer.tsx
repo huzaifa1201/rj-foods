@@ -10,7 +10,7 @@ export const Footer = () => {
         
         {/* Brand Section */}
         <div className="space-y-4">
-          <h3 className="text-2xl font-bold text-primary">RJ Foods</h3>
+          <h3 className="text-2xl font-bold text-primary">FoodieFlow</h3>
           <p className="text-sm leading-relaxed text-gray-500">
             Delivering the best cuisines to your doorstep with love and speed. Experience the taste of quality.
           </p>
@@ -57,14 +57,14 @@ export const Footer = () => {
             </li>
             <li className="flex items-center gap-3">
               <Mail className="text-primary shrink-0" size={18} />
-              <span>support@rjfoods.com</span>
+              <span>support@foodieflow.com</span>
             </li>
           </ul>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 pt-8 border-t border-gray-100 text-center text-sm text-gray-400">
-        <p>&copy; {new Date().getFullYear()} RJ Foods. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} FoodieFlow. All rights reserved.</p>
       </div>
     </footer>
   );

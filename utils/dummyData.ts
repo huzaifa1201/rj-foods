@@ -62,12 +62,12 @@ export const defaultPages = [
   {
     id: 'terms-conditions',
     title: 'Terms & Conditions',
-    content: "Welcome to RJ Foods.\n\n1. Acceptance of Terms\nBy accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement.\n\n2. Ordering\nAll orders are subject to availability and confirmation of the order price.\n\n3. Delivery\nWe aim to deliver within 45 minutes, but delivery times may vary based on traffic and weather conditions."
+    content: "Welcome to FoodieFlow.\n\n1. Acceptance of Terms\nBy accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement.\n\n2. Ordering\nAll orders are subject to availability and confirmation of the order price.\n\n3. Delivery\nWe aim to deliver within 45 minutes, but delivery times may vary based on traffic and weather conditions."
   },
   {
     id: 'privacy-policy',
     title: 'Privacy Policy',
-    content: "RJ Foods respects your privacy.\n\n1. Information Collection\nWe collect information you provide directly to us, such as when you create an account, place an order, or contact customer support.\n\n2. Use of Information\nWe use the information we collect to process your orders and improve our services."
+    content: "FoodieFlow respects your privacy.\n\n1. Information Collection\nWe collect information you provide directly to us, such as when you create an account, place an order, or contact customer support.\n\n2. Use of Information\nWe use the information we collect to process your orders and improve our services."
   },
   {
     id: 'refund-policy',
