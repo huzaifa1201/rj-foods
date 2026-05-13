@@ -156,11 +156,12 @@ export const Home = () => {
          </div>
       </section>
 
-      {/* --- HOW IT WORKS (FIXED VISUALS) --- */}
-      <section className="relative py-40 overflow-hidden">
-         <div className="absolute inset-0 bg-darkGray -z-10">
-            <div className="absolute inset-0 opacity-[0.05] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:30px_30px]"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[150px]"></div>
+      {/* --- HOW IT WORKS (RE-FIXED VISUALS) --- */}
+      <section className="relative py-40">
+         {/* Explicit solid background color to fix white-on-white issues */}
+         <div className="absolute inset-0 bg-[#1a1a1a] -z-10">
+            <div className="absolute inset-0 opacity-[0.1] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:40px_40px]"></div>
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-primary/5 to-transparent"></div>
          </div>
          
          <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -168,17 +169,17 @@ export const Home = () => {
                <motion.span 
                  initial={{ opacity: 0 }}
                  whileInView={{ opacity: 1 }}
-                 className="text-primary font-black uppercase tracking-[0.5em] text-xs"
+                 className="text-primary font-black uppercase tracking-[0.5em] text-[10px] bg-primary/10 px-4 py-1 rounded-full"
                >
                  Seamless Experience
                </motion.span>
-               <h2 className="text-6xl md:text-8xl font-black text-white mt-8 tracking-tighter">
+               <h2 className="text-6xl md:text-8xl font-black text-white mt-8 tracking-tighter leading-none">
                  How It <span className="text-primary italic">Works</span>
                </h2>
-               <div className="w-24 h-1.5 bg-primary mx-auto mt-8 rounded-full"></div>
+               <div className="w-32 h-2 bg-primary mx-auto mt-10 rounded-full shadow-[0_0_20px_rgba(255,75,110,0.5)]"></div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-20 relative">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-24 relative">
                <WorkStep 
                   number="01" 
                   title="Choose Your Meal" 
@@ -222,7 +223,7 @@ export const Home = () => {
                      <p className="text-4xl font-black text-primary">500+</p>
                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Partner Restaurants</p>
                   </div>
-                  <div className="h-64 bg-darkGray rounded-[3rem] overflow-hidden shadow-2xl">
+                  <div className="h-64 bg-[#1a1a1a] rounded-[3rem] overflow-hidden shadow-2xl">
                      <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" className="w-full h-full object-cover" alt="" />
                   </div>
                </div>
@@ -285,9 +286,13 @@ export const Home = () => {
                            <p className="text-gray-400 text-sm font-medium mb-8 line-clamp-2 leading-relaxed">{p.description}</p>
                            <div className="flex justify-between items-center bg-gray-50 p-2 rounded-[1.5rem]">
                               <span className="text-primary font-black text-xl ml-4">PKR {p.price}</span>
-                              <Button onClick={() => navigate(`/product/${p.id}`)} className="w-12 h-12 p-0 rounded-2xl shadow-lg">
-                                 <ShoppingBag size={20} />
-                              </Button>
+                              {/* FIXED: Added ShoppingBag icon explicitly inside the button with proper color */}
+                              <button 
+                                 onClick={() => navigate(`/product/${p.id}`)} 
+                                 className="w-14 h-14 bg-primary text-white rounded-2xl shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
+                              >
+                                 <ShoppingBag size={24} strokeWidth={2.5} />
+                              </button>
                            </div>
                         </div>
                      </Card>
@@ -297,16 +302,15 @@ export const Home = () => {
          </div>
       </section>
 
-      {/* --- CALL TO ACTION (REDESIGNED) --- */}
+      {/* --- CALL TO ACTION --- */}
       <section className="max-w-7xl mx-auto px-4 mb-20">
          <motion.div 
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             className="relative bg-primary rounded-[5rem] p-16 md:p-24 text-center overflow-hidden shadow-[0_50px_100px_rgba(255,75,110,0.3)]"
          >
-            {/* Background Decorative Circles */}
             <div className="absolute -top-24 -right-24 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-darkGray/10 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-black/10 rounded-full blur-3xl"></div>
             
             <div className="relative z-10 max-w-3xl mx-auto">
                <motion.h2 
@@ -314,7 +318,7 @@ export const Home = () => {
                  whileInView={{ opacity: 1, scale: 1 }}
                  className="text-5xl md:text-7xl font-black text-white mb-10 leading-[1.1] tracking-tighter"
                >
-                 Ready to taste the <br /> <span className="text-darkGray">best food</span> in Pakistan?
+                 Ready to taste the <br /> <span className="text-[#1a1a1a]">best food</span> in Pakistan?
                </motion.h2>
                
                <p className="text-white/80 font-bold mb-14 text-lg md:text-xl max-w-xl mx-auto leading-relaxed italic">
@@ -329,23 +333,8 @@ export const Home = () => {
                   >
                     Get Started Now
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    className="px-12 py-6 text-xl font-black rounded-[2rem] border-2 border-white/30 text-white hover:bg-white hover:text-primary transition-all backdrop-blur-sm"
-                  >
-                    Contact Support
-                  </Button>
                </div>
             </div>
-            
-            {/* Abstract Floating Shapes */}
-            <motion.div 
-               animate={{ y: [0, 20, 0] }}
-               transition={{ duration: 4, repeat: Infinity }}
-               className="absolute top-10 right-10 hidden lg:block"
-            >
-               <div className="w-20 h-20 bg-white/5 rounded-3xl rotate-12 backdrop-blur-md border border-white/10"></div>
-            </motion.div>
          </motion.div>
       </section>
     </div>
@@ -360,10 +349,10 @@ const WorkStep = ({ number, title, desc, icon: Icon, delay }: any) => (
     className="text-center group relative z-10"
   >
      <div className="relative inline-block mb-10">
-        <div className="w-32 h-32 bg-white/10 border border-white/20 rounded-[3rem] flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-700 group-hover:scale-110 group-hover:shadow-[0_20px_60px_rgba(255,75,110,0.5)]">
+        <div className="w-32 h-32 bg-white/5 border border-white/10 rounded-[3rem] flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-700 group-hover:scale-110 group-hover:shadow-[0_20px_60px_rgba(255,75,110,0.5)]">
            <Icon size={48} strokeWidth={1.5} />
         </div>
-        <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-2xl border-4 border-darkGray">
+        <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-2xl border-4 border-[#1a1a1a]">
            {number}
         </div>
      </div>
